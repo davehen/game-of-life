@@ -1,7 +1,5 @@
 package dave.gameoflife.model;
 
-import static dave.gameoflife.Constants.*;
-
 public class Matrix {
 
     private final Cell[][] cells;
@@ -14,14 +12,14 @@ public class Matrix {
         this.cols = cols;
         this.rows = rows;
         this.notVisibleBuffer = notVisibleBuffer;
-        this.cells = new Cell[CELL_COLS][CELL_ROWS];
-        this.nextCellStatus = new boolean[CELL_COLS][CELL_ROWS];
+        this.cells = new Cell[this.cols][this.rows];
+        this.nextCellStatus = new boolean[this.cols][this.rows];
 
         this.traverse((x, y) -> {
             cells[x][y] = new Cell();
             cells[x][y].setVisible(
                     x >= this.notVisibleBuffer && y >= this.notVisibleBuffer &&
-                    x < (this.cols - MATRIX_BUFFER) && y < (this.rows - this.notVisibleBuffer)
+                    x < (this.cols - this.notVisibleBuffer) && y < (this.rows - this.notVisibleBuffer)
             );
         });
 
