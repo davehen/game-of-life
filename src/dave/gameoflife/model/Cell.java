@@ -33,14 +33,10 @@ public class Cell {
         this.neighbors.add(cell);
     }
 
-    public List<Cell> getAliveNeighbors() {
-        return this.neighbors.stream()
-                .filter(Cell::isAlive)
-                .toList();
-    }
-
     public boolean willBeAlive() {
-        int aliveNeighbors = this.getAliveNeighbors().size();
+        int aliveNeighbors = this.neighbors.stream()
+                .filter(Cell::isAlive)
+                .toList().size();
         return
                 // any live cell with two or three live neighbours survives
                 (this.isAlive() && (aliveNeighbors == 2 || aliveNeighbors == 3)) ||
