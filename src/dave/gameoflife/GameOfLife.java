@@ -13,7 +13,7 @@ public class GameOfLife extends Frame {
     private final Matrix matrix;
     private boolean started;
     public GameOfLife() {
-        this.matrix = new Matrix();
+        this.matrix = new Matrix(CELL_COLS, CELL_ROWS, MATRIX_BUFFER);
 
         setUndecorated(true);
         setTitle("Game of Life");
@@ -28,7 +28,7 @@ public class GameOfLife extends Frame {
             @Override
             public void mousePressed(MouseEvent e) {
                 Point click = e.getPoint();
-                Cell clickedCell = matrix.getCellByPoint(click.getX(), click.getY());
+                Cell clickedCell = getCellByPoint(click.getX(), click.getY());
                 clickedCell.setAlive(!clickedCell.isAlive());
                 if (clickedCell.isVisible()) repaint();
             }
@@ -43,12 +43,18 @@ public class GameOfLife extends Frame {
         });
     }
 
-    public Matrix getMatrix() {
+    private Matrix getMatrix() {
         return this.matrix;
     }
 
-    public boolean isStarted() {
+    private boolean isStarted() {
         return this.started;
+    }
+
+    private Cell getCellByPoint(double x, double y) {
+        int cellX = (int) ((x - x % CELL_SIZE) / CELL_SIZE);
+        int cellY = (int) ((y - y % CELL_SIZE) / CELL_SIZE);
+        return this.matrix.getCell(cellX, cellY);
     }
 
     @Override
@@ -70,7 +76,7 @@ public class GameOfLife extends Frame {
         });
     }
 
-    record PaintListener(GameOfLife gof) implements ActionListener {
+    private record PaintListener(GameOfLife gof) implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent event) {
