@@ -60,8 +60,12 @@ public class GameOfLife extends Frame {
                         repaint();
                     }
                     case 109 -> {                                                           /* zoom out (char '-') */
-                        cellSize -= ZOOM_INCR;
-                        repaint();
+                        int newCellSize = cellSize - ZOOM_INCR;
+                        if (visibleMatrix.getCols() >= resX / newCellSize &&
+                                visibleMatrix.getRows() >= resY / newCellSize) {
+                            cellSize = newCellSize;
+                            repaint();
+                        }
                     }
                 }
             }
