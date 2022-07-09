@@ -6,7 +6,6 @@ import java.util.List;
 public class Cell {
 
     private boolean alive;
-    private boolean visible;
     private final List<Cell> neighbors;
 
     public Cell() {
@@ -19,14 +18,6 @@ public class Cell {
 
     public void setAlive(boolean alive) {
         this.alive = alive;
-    }
-
-    public boolean isVisible() {
-        return this.visible;
-    }
-
-    public void setVisible(boolean visible) {
-        this.visible = visible;
     }
 
     public void addNeighbor(Cell cell) {
@@ -43,5 +34,4 @@ public class Cell {
                 // any dead cell with three live neighbours becomes a live cell
                 (!this.isAlive() && (aliveNeighbors == 3));
     }
-
 }

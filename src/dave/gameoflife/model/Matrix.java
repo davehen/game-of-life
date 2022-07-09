@@ -1,41 +1,44 @@
 package dave.gameoflife.model;
 
+import static java.math.BigDecimal.valueOf;
+
 public class Matrix {
 
     private final Cell[][] cells;
     private final boolean[][] nextCellStatus;
-    private final int totalCols;
-    private final int totalRows;
-    private final int visibleCols;
-    private final int visibleRows;
-    private final Coordinate visibleStart;
-    private final Coordinate visibleEnd;
+    private final int cols;
+    private final int rows;
+    private Matrix visibleMatrix;
+    private int visibleOffsetX;
+    private int visibleOffsetY;
 
     public Matrix(int cols, int rows, int visiblePortion) {
-        this.totalCols = cols;
-        this.totalRows = rows;
-        this.cells = new Cell[this.totalCols][this.totalRows];
-        this.nextCellStatus = new boolean[this.totalCols][this.totalRows];
+        this.cols = cols;
+        this.rows = rows;
+        this.cells = new Cell[this.cols][this.rows];
+        this.nextCellStatus = new boolean[this.cols][this.rows];
 
+        this.traverse((x, y) -> cells[x][y] = new Cell());
+
+        visiblePortion = Math.min(visiblePortion, 100);
+        visiblePortion = Math.max(visiblePortion, 0);
+        if (visiblePortion == 100)
+            return;
         int totalCells = cols * rows;
         int visibleCells = totalCells * visiblePortion / 100;
-        this.visibleCols = this.totalCols * visibleCells / totalCells;
-        this.visibleRows = this.totalRows * visibleCells / totalCells;
-        int visibleXStart = (this.totalCols - this.visibleCols) / 2;
-        int visibleYStart = (this.totalRows - this.visibleRows) / 2;
-        this.visibleStart = new Coordinate(visibleXStart, visibleYStart);
-        int visibleXEnd = visibleXStart + this.visibleCols;
-        int visibleYEnd = visibleYStart + this.visibleRows;
-        this.visibleEnd = new Coordinate(visibleXEnd, visibleYEnd);
-        this.traverse((x, y) -> {
-            cells[x][y] = new Cell();
-            cells[x][y].setVisible(
-                    x >= visibleXStart && y >= visibleYStart && x < visibleXEnd && y < visibleYEnd
-            );
-        });
+        int visibleCols = valueOf(this.cols).multiply(valueOf(visibleCells)).divide(valueOf(totalCells)).intValue();
+        int visibleRows = valueOf(this.rows).multiply(valueOf(visibleCells)).divide(valueOf(totalCells)).intValue();
+        this.visibleMatrix = new Matrix(visibleCols, visibleRows, 100);
 
+        int visibleXStart = (this.cols - visibleCols) / 2;
+        int visibleYStart = (this.rows - visibleRows) / 2;
+        int visibleXEnd = visibleXStart + visibleCols;
+        int visibleYEnd = visibleYStart + visibleRows;
         this.traverse((x, y) -> {
             Cell currCell = cells[x][y];
+            if (x >= visibleXStart && y >= visibleYStart && x < visibleXEnd && y < visibleYEnd)
+                this.visibleMatrix.setCell(x - visibleXStart, y - visibleYStart, currCell);
+
             try { currCell.addNeighbor(this.getCell(x, y - 1)); } catch (ArrayIndexOutOfBoundsException ignore) {}
             try { currCell.addNeighbor(this.getCell(x + 1, y - 1)); } catch (ArrayIndexOutOfBoundsException ignore) {}
             try { currCell.addNeighbor(this.getCell(x + 1, y)); } catch (ArrayIndexOutOfBoundsException ignore) {}
@@ -52,71 +55,59 @@ public class Matrix {
         this.traverse((x, y) -> cells[x][y].setAlive(nextCellStatus[x][y]));
     }
 
+    public Matrix getVisibleMatrix() {
+        return visibleMatrix;
+    }
+
     public Cell getCell(int x, int y) {
         return this.cells[x][y];
     }
 
-    public int getTotalCols() {
-        return totalCols;
+    public void setCell(int x, int y, Cell cell) {
+        this.cells[x][y] = cell;
     }
 
-    public int getTotalRows() {
-        return totalRows;
+    public int getCols() {
+        return cols;
     }
 
-    public int getVisibleCols() {
-        return visibleCols;
+    public int getRows() {
+        return rows;
     }
 
-    public int getVisibleRows() {
-        return visibleRows;
+    public int getVisibleOffsetX() {
+        return visibleOffsetX;
     }
 
-    public Coordinate getVisibleStart() {
-        return visibleStart;
+    public void setVisibleOffsetX(int visibleOffsetX) {
+        this.visibleOffsetX = visibleOffsetX;
     }
 
-    public Coordinate getVisibleEnd() {
-        return visibleEnd;
+    public int getVisibleOffsetY() {
+        return visibleOffsetY;
+    }
+
+    public void setVisibleOffsetY(int visibleOffsetY) {
+        this.visibleOffsetY = visibleOffsetY;
     }
 
     public void traverse(MatrixOperation op) {
-        for (int x = 0; x < this.totalCols; x++) {
-            for (int y = 0; y < this.totalRows; y++) {
+        for (int x = 0; x < this.cols; x++) {
+            for (int y = 0; y < this.rows; y++) {
                 op.execute(x, y);
             }
         }
     }
 
     public void traverseX(ArrayOperation op) {
-        for (int x = 0; x < this.totalCols; x++) {
+        for (int x = 0; x < this.cols; x++) {
             op.execute(x);
         }
     }
 
     public void traverseY(ArrayOperation op) {
-        for (int y = 0; y < this.totalRows; y++) {
+        for (int y = 0; y < this.rows; y++) {
             op.execute(y);
-        }
-    }
-
-    public static class Coordinate
-    {
-        int x;
-
-        int y;
-
-        public Coordinate(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        public int getX() {
-            return x;
-        }
-
-        public int getY() {
-            return y;
         }
     }
 
