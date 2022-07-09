@@ -81,8 +81,8 @@ public class GameOfLife extends Frame {
     }
 
     private Cell getCellByPoint(double x, double y) {
-        int cellX = (int) ((x - x % this.cellSize) / this.cellSize);
-        int cellY = (int) ((y - y % this.cellSize) / this.cellSize);
+        int cellX = (int) ((x - x % this.cellSize) / this.cellSize) - this.matrix.getVisibleOffsetX();
+        int cellY = (int) ((y - y % this.cellSize) / this.cellSize) - this.matrix.getVisibleOffsetY();
         return this.visibleMatrix.getCell(cellX, cellY);
     }
 
