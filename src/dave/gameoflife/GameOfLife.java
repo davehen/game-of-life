@@ -2,6 +2,7 @@ package dave.gameoflife;
 
 import dave.gameoflife.model.Cell;
 import dave.gameoflife.model.Matrix;
+import dave.gameoflife.model.Matrix.Coordinate;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +13,7 @@ public class GameOfLife extends Frame {
     public static final int CELL_ROWS = 100;
     public static final int CELL_COLS = 200;
     public static final int CELL_SIZE = 10;
-    public static final int MATRIX_BUFFER = 5;
+    public static final int MATRIX_VISIBILITY = 80;
     public static final int REGEN_EACH = 10;
     public static final int RES_X = CELL_COLS * CELL_SIZE;
     public static final int RES_Y = CELL_ROWS * CELL_SIZE;
@@ -20,7 +21,7 @@ public class GameOfLife extends Frame {
     private final Matrix matrix;
     private boolean started;
     public GameOfLife() {
-        this.matrix = new Matrix(CELL_COLS, CELL_ROWS, MATRIX_BUFFER);
+        this.matrix = new Matrix(CELL_COLS, CELL_ROWS, MATRIX_VISIBILITY);
 
         setUndecorated(true);
         setTitle("Game of Life");
@@ -30,7 +31,6 @@ public class GameOfLife extends Frame {
         setResizable(false);
         setBackground(Color.lightGray);
         setForeground(Color.lightGray);
-
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -43,8 +43,13 @@ public class GameOfLife extends Frame {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyChar() == ' ') {
-                    started = !started;
+                System.out.println(e.getKeyCode());
+                switch (e.getKeyCode()) {
+                    /* space */         case 32 -> started = !started;
+                    /* arrow left */    case 37 -> started = !started;
+                    /* arrow up */      case 38 -> started = !started;
+                    /* arrow right */   case 39 -> started = !started;
+                    /* arrow down */    case 40 -> started = !started;
                 }
             }
         });
@@ -67,8 +72,8 @@ public class GameOfLife extends Frame {
     @Override
     public void paint(Graphics g) {
         g.setColor(Color.WHITE);
-        g.fillRect(MATRIX_BUFFER * CELL_SIZE, MATRIX_BUFFER * CELL_SIZE,
-                RES_X - MATRIX_BUFFER * CELL_SIZE * 2, RES_Y - MATRIX_BUFFER * CELL_SIZE * 2);
+        g.fillRect(this.matrix.getVisibleStart().getX() * CELL_SIZE, this.matrix.getVisibleStart().getY() * CELL_SIZE,
+                this.matrix.getVisibleCols() * CELL_SIZE, this.matrix.getVisibleRows() * CELL_SIZE);
 
         g.setColor(Color.lightGray);
         matrix.traverseX(x -> g.drawLine(x * CELL_SIZE, 0, x * CELL_SIZE, RES_Y));
@@ -87,9 +92,9 @@ public class GameOfLife extends Frame {
 
         @Override
         public void actionPerformed(ActionEvent event) {
-            if (!gof.isStarted()) return;
             gof.repaint();
-            gof.getMatrix().nextGen();
+            if (gof.isStarted())
+                gof.getMatrix().nextGen();
         }
     }
 
